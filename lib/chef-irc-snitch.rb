@@ -23,14 +23,16 @@ class IRCSnitch < Chef::Handler
     max_attempts = 3
     gist_id = nil
 
-    timeout(8) do
-      res = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
-        "files[#{node.name}-#{Time.now.to_i.to_s}]" => gist,
-        "login" => @github_user,
-        "token" => @github_token,
-        "description" => "Chef run failed on #{node.name} @ #{Time.now.getutc}"
-      })
-      gist_id = JSON.parse(res.body)["gists"].first["repo"]
+    begin
+      timeout(8) do
+        res = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
+          "files[#{node.name}-#{Time.now.to_i.to_s}]" => gist,
+          "login" => @github_user,
+          "token" => @github_token,
+          "description" => "Chef run failed on #{node.name} @ #{Time.now.getutc}"
+        })
+        gist_id = JSON.parse(res.body)["gists"].first["repo"]
+      end
     rescue Timeout::Error
       Chef::Log.info("Timed out while attempting to create a GitHub Gist, retrying ...")
       max_attempts -= 1
