@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "chef-irc-snitch"
 
   s.add_dependency('chef')
-  s.add_dependency('shout-bot')
+  s.add_dependency('shout-bot-portertech')
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
