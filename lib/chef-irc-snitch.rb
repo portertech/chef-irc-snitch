@@ -18,7 +18,7 @@ class IRCSnitch < Chef::Handler
   def report
     Chef::Log.error("Chef run failed @ #{Time.now.getutc}, snitchin' to chefs via IRC")
 
-    gist = "#{run_status.formatted_exception}\n\n"
+    gist = "#{run_status.formatted_exception}\n"
     gist << Array(backtrace).join("\n")
 
     max_attempts = 2
@@ -43,13 +43,14 @@ class IRCSnitch < Chef::Handler
     Chef::Log.info("Created a GitHub Gist @ https://gist.github.com/#{gist_id}")
 
     max_attempts = 2
-    message = "Chef run failed on #{node.name} => https://gist.github.com/#{gist_id}"
+    ip_address = (node.has_key? :ec2) ? node.ec2.public_ipv4 : node.ipaddress
+    message = "Chef run failed on #{node.name} (#{ip_address}) : https://gist.github.com/#{gist_id}"
 
     begin
       timeout(8) do
         ShoutBot.shout(@irc_uri, nil, @ssl) do |channel|
           channel.say message
-          Chef::Log.info("Informed chefs via IRC => '#{message}'")
+          Chef::Log.info("Informed chefs via IRC : #{message}")
         end
       end
     rescue Timeout::Error
