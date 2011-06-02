@@ -30,7 +30,8 @@ class IRCSnitch < Chef::Handler
           "files[#{node.name}-#{Time.now.to_i.to_s}]" => gist,
           "login" => @github_user,
           "token" => @github_token,
-          "description" => "Chef run failed on #{node.name} @ #{Time.now.getutc}"
+          "description" => "Chef run failed on #{node.name} @ #{Time.now.getutc}",
+          "public" => false
         })
         gist_id = JSON.parse(res.body)["gists"].first["repo"]
       end
