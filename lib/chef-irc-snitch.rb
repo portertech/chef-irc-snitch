@@ -34,6 +34,7 @@ class IRCSnitch < Chef::Handler
           "public" => false
         })
         gist_id = JSON.parse(res.body)["gists"].first["repo"]
+        Chef::Log.info("Created a GitHub Gist @ https://gist.github.com/#{gist_id}")
       end
     rescue Timeout::Error
       Chef::Log.error("Timed out while attempting to create a GitHub Gist, retrying ...")
@@ -41,11 +42,9 @@ class IRCSnitch < Chef::Handler
       retry if max_attempts > 0
     end
 
-    Chef::Log.info("Created a GitHub Gist @ https://gist.github.com/#{gist_id}")
-
     max_attempts = 2
     ip_address = (node.has_key? :ec2) ? node.ec2.public_ipv4 : node.ipaddress
-    message = "Chef run failed on #{node.name} (#{ip_address}) : https://gist.github.com/#{gist_id}"
+    message = "Chef run failed on #{node.name} : #{ip_address} : #{node.roles.join(", ")} : https://gist.github.com/#{gist_id}"
 
     begin
       timeout(8) do
