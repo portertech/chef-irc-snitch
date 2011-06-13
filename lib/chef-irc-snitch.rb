@@ -4,7 +4,7 @@ require 'chef/handler'
 require 'net/http'
 require 'uri'
 require 'json'
-require 'shout-bot'
+require 'carrier-pigeon'
 
 class IRCSnitch < Chef::Handler
 
@@ -48,10 +48,8 @@ class IRCSnitch < Chef::Handler
 
     begin
       timeout(8) do
-        ShoutBot.shout(@irc_uri, nil, @ssl) do |channel|
-          channel.say message
-          Chef::Log.info("Informed chefs via IRC : #{message}")
-        end
+        CarrierPigeon.send({:uri => @irc_uri, :message => message, :ssl => @ssl})
+        Chef::Log.info("Informed chefs via IRC : #{message}")
       end
     rescue Timeout::Error
       Chef::Log.error("Timed out while attempting to message Chefs via IRC, retrying ...")
