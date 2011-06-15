@@ -1,0 +1,19 @@
+* Usage
+** Install
+
+: sudo gem install chef-irc-snitch
+
+** Configure Chef to Use The Handler
+
+Append the following to your Chef client configs ('/etc/chef/client.rb')
+
+: # Notify admins via IRC when a Chef run fails
+: require 'chef-irc-snitch'
+: 
+: irc_uri = "irc://nick:password@irc.domain.com:6667/#admins"
+: github_user = "foobar"
+: github_token = "asKkwqofovX3shBmtMf8EWhDzSr7ouUb"
+: enable_ssl = true
+: 
+: irc_handler = IRCSnitch.new(irc_uri, github_user, github_token, enable_ssl)
+: exception_handlers << irc_handler
