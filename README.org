@@ -1,7 +1,8 @@
-* Usage
-** Install
+* Install
 
-: sudo gem install chef-irc-snitch
+: gem install chef-irc-snitch
+
+* Usage
 
 ** Configure Chef to Use The Handler
 
