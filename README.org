@@ -18,3 +18,7 @@ Append the following to your Chef client configs ('/etc/chef/client.rb')
 : 
 : irc_handler = IRCSnitch.new(irc_uri, github_user, github_token, enable_ssl)
 : exception_handlers << irc_handler
+
+* License
+
+  Chef-IRC-Snitch is released under the [[https://github.com/portertech/chef-irc-snitch/blob/master/MIT-LICENSE.txt][MIT license]].
