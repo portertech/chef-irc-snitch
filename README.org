@@ -4,6 +4,11 @@
 
 * Usage
 
+** Get your OAuth2 token from GitHub
+
+Grab this repo and follow the instructions to get your own OAuth2 token (under CLI Testing):
+https://github.com/jwilger/github-v3-api
+
 ** Configure Chef to Use The Handler
 
 Append the following to your Chef client configs ('/etc/chef/client.rb')
@@ -12,11 +17,11 @@ Append the following to your Chef client configs ('/etc/chef/client.rb')
 : require 'chef-irc-snitch'
 : 
 : irc_uri = "irc://nick:password@irc.domain.com:6667/#admins"
-: github_user = "foobar"
+: # This is the token you got above ^^
 : github_token = "asKkwqofovX3shBmtMf8EWhDzSr7ouUb"
 : enable_ssl = true
 : 
-: irc_handler = IRCSnitch.new(irc_uri, github_user, github_token, enable_ssl)
+: irc_handler = IRCSnitch.new(irc_uri, github_token, enable_ssl)
 : exception_handlers << irc_handler
 
 * License
