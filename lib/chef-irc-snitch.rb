@@ -8,10 +8,11 @@ require 'carrier-pigeon'
 
 class IRCSnitch < Chef::Handler
 
-  def initialize(irc_uri, github_token, ssl = false)
+  def initialize(irc_uri, github_token, irc_channel_password, ssl = false)
     @irc_uri = irc_uri
     @github_token = github_token
     @ssl = ssl
+    @irc_channel_password = irc_channel_password
     @timestamp = Time.now.getutc
   end
 
@@ -52,7 +53,7 @@ class IRCSnitch < Chef::Handler
 
       begin
         timeout(10) do
-          CarrierPigeon.send(:uri => @irc_uri, :message => message, :join => true, :ssl => @ssl)
+          CarrierPigeon.send(:uri => @irc_uri, :pw => @irc_channel_password, :message => message, :join => true, :ssl => @ssl)
           Chef::Log.info("Informed chefs via IRC '#{message}'")
         end
       rescue Timeout::Error
