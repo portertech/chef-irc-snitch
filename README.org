@@ -20,6 +20,8 @@ Append the following to your Chef client configs ('/etc/chef/client.rb')
 : # This is the token you got above ^^
 : github_token = "asKkwqofovX3shBmtMf8EWhDzSr7ouUb"
 : enable_ssl = true
+: # The irc channel password is optional, you can leave it empty if you do not have a channel password
+: irc_channel_password = "some password"
 : 
 : irc_handler = IRCSnitch.new(irc_uri, github_token, enable_ssl)
 : exception_handlers << irc_handler
