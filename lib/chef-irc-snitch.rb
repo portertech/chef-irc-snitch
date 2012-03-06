@@ -16,22 +16,33 @@ class IRCSnitch < Chef::Handler
     @timestamp = Time.now.getutc
   end
 
+  def fmt_run_list
+    node.run_list.map {|r| r.type == :role ? r.name : r.to_s }.join(', ')
+  end
+
+  def fmt_gist
+    ([ "Node: #{node.name} (#{node.ipaddress})",
+       "Run list: #{node.run_list}",
+       "All roles: #{node.roles.join(', ')}",
+       "",
+       "#{run_status.formatted_exception}",
+       ""] +
+     Array(backtrace)).join("\n")
+  end
+
   def report
-    message = "#{run_status.formatted_exception}\n"
-    message << Array(backtrace).join("\n")
 
     if STDOUT.tty?
       Chef::Log.error("Chef run failed @ #{@timestamp}")
-      puts message
+      Chef::Log.error("#{run_status.formatted_exception}")
     else
       Chef::Log.error("Chef run failed @ #{@timestamp}, snitchin' to chefs via IRC")
 
       gist_id = nil
-
       begin
         timeout(10) do
           res = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
-            "files[#{node.name}-#{@timestamp.to_i.to_s}]" => message,
+            "files[#{node.name}-#{@timestamp.to_i.to_s}]" => fmt_gist,
             "login" => @github_user,
             "token" => @github_token,
             "description" => "Chef run failed on #{node.name} @ #{@timestamp}",
@@ -44,8 +55,7 @@ class IRCSnitch < Chef::Handler
         Chef::Log.error("Timed out while attempting to create a GitHub Gist")
       end
 
-      ip_address = (node.has_key? :ec2) ? node.ec2.public_ipv4 : node.ipaddress
-      message = "Chef run failed on #{node.name} : #{ip_address} : #{node.roles.join(", ")} : https://gist.github.com/#{gist_id}"
+      message = "Chef failed on #{node.name} (#{fmt_run_list}): https://gist.github.com/#{gist_id}"
 
       begin
         timeout(10) do
