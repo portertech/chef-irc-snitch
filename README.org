@@ -6,7 +6,7 @@
 
 ** Configure Chef to Use The Handler
 
-Append the following to your Chef client configs ('/etc/chef/client.rb')
+Append the following to your Chef client configs, usually @ =/etc/chef/client.rb=
 
 : # Notify admins via IRC when a Chef run fails
 : require 'chef-irc-snitch'
