@@ -13,10 +13,10 @@ Append the following to your Chef client configs, usually at =/etc/chef/client.r
 : 
 : irc_uri = "irc://nick:password@irc.domain.com:6667/#admins"
 : github_user = "foobar"
-: github_token = "asKkwqofovX3shBmtMf8EWhDzSr7ouUb"
+: github_password = "secret"
 : enable_ssl = true
 : 
-: irc_handler = IRCSnitch.new(irc_uri, github_user, github_token, enable_ssl)
+: irc_handler = IRCSnitch.new(irc_uri, github_user, github_password, enable_ssl)
 : exception_handlers << irc_handler
 
 * License
