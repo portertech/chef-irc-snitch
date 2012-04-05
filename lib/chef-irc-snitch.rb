@@ -41,14 +41,14 @@ class IRCSnitch < Chef::Handler
       gist_id = nil
       begin
         timeout(10) do
-          res = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
+          response = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
             "files[#{node.name}-#{@timestamp.to_i}]" => formatted_gist,
             "login" => @github_user,
             "password" => @github_password,
             "description" => "Chef run failed on #{node.name} @ #{@timestamp}",
             "public" => false
           })
-          gist_id = JSON.parse(res.body)["gists"].first["repo"]
+          gist_id = JSON.parse(response.body)["gists"].first["repo"]
           Chef::Log.info("Created a GitHub Gist @ https://gist.github.com/#{gist_id}")
         end
       rescue Timeout::Error
