@@ -8,26 +8,26 @@ require 'carrier-pigeon'
 
 class IRCSnitch < Chef::Handler
 
-  def initialize(irc_uri, github_user, github_token, ssl = false)
+  def initialize(irc_uri, github_user, github_password, ssl = false)
     @irc_uri = irc_uri
     @github_user = github_user
-    @github_token = github_token
+    @github_password = github_password
     @ssl = ssl
     @timestamp = Time.now.getutc
   end
 
-  def fmt_run_list
+  def formatted_run_list
     node.run_list.map {|r| r.type == :role ? r.name : r.to_s }.join(', ')
   end
 
-  def fmt_gist
+  def formatted_gist
     ([ "Node: #{node.name} (#{node.ipaddress})",
        "Run list: #{node.run_list}",
        "All roles: #{node.roles.join(', ')}",
        "",
        "#{run_status.formatted_exception}",
-       ""] +
-     Array(backtrace)).join("\n")
+       ""
+     ] + Array(backtrace)).join("\n")
   end
 
   def report
@@ -42,9 +42,9 @@ class IRCSnitch < Chef::Handler
       begin
         timeout(10) do
           res = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
-            "files[#{node.name}-#{@timestamp.to_i.to_s}]" => fmt_gist,
+            "files[#{node.name}-#{@timestamp.to_i}]" => formatted_gist,
             "login" => @github_user,
-            "token" => @github_token,
+            "password" => @github_password,
             "description" => "Chef run failed on #{node.name} @ #{@timestamp}",
             "public" => false
           })
@@ -55,7 +55,7 @@ class IRCSnitch < Chef::Handler
         Chef::Log.error("Timed out while attempting to create a GitHub Gist")
       end
 
-      message = "Chef failed on #{node.name} (#{fmt_run_list}): https://gist.github.com/#{gist_id}"
+      message = "Chef failed on #{node.name} (#{formatted_run_list}): https://gist.github.com/#{gist_id}"
 
       begin
         timeout(10) do
