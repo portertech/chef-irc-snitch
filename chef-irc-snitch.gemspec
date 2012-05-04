@@ -12,7 +12,6 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "chef-irc-snitch"
 
-  s.add_dependency('chef')
   s.add_dependency('carrier-pigeon')
 
   s.files         = `git ls-files`.split("\n")

@@ -1,9 +1,6 @@
-require 'rubygems'
-require 'chef'
-require 'chef/handler'
-require 'net/http'
 require 'uri'
 require 'json'
+require 'net/http'
 require 'carrier-pigeon'
 
 class IRCSnitch < Chef::Handler
