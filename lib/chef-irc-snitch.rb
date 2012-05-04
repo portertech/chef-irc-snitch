@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'chef/handler'
 require 'uri'
 require 'json'
 require 'net/http'
