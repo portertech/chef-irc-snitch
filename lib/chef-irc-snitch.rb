@@ -25,7 +25,7 @@ class IRCSnitch < Chef::Handler
       "All roles: #{node.roles.join(', ')}"
     ].join("\n")
     backtrace = Array(backtrace).join("\n")
-    [info, run_status.formatted_exception, backtrace].join("\n")
+    [info, run_status.formatted_exception, backtrace].join("\n\n")
   end
 
   def create_gist
