@@ -1,9 +1,9 @@
-require 'rubygems'
-require 'chef/handler'
-require 'uri'
-require 'json'
-require 'net/https'
-require 'carrier-pigeon'
+require "rubygems"
+require "chef/handler"
+require "uri"
+require "json"
+require "net/https"
+require "carrier-pigeon"
 
 class IRCSnitch < Chef::Handler
   def initialize(irc_uri, ssl=false)
@@ -14,7 +14,7 @@ class IRCSnitch < Chef::Handler
   end
 
   def formatted_run_list
-    node.run_list.map { |r| r.type == :role ? r.name : r.to_s }.join(', ')
+    node.run_list.map { |r| r.type == :role ? r.name : r.to_s }.join(", ")
   end
 
   def formatted_gist
