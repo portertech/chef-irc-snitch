@@ -6,7 +6,6 @@ require 'net/https'
 require 'carrier-pigeon'
 
 class IRCSnitch < Chef::Handler
-
   def initialize(irc_uri, ssl=false)
     @irc_uri = irc_uri
     @ssl = ssl
@@ -20,13 +19,16 @@ class IRCSnitch < Chef::Handler
 
   def formatted_gist
     ip_address = node.has_key?(:cloud) ? node.cloud.public_ipv4 : node.ipaddress
-    info = [
+    node_info = [
       "Node: #{node.name} (#{ip_address})",
       "Run list: #{node.run_list}",
       "All roles: #{node.roles.join(', ')}"
     ].join("\n")
-    backtrace = Array(backtrace).join("\n")
-    [info, run_status.formatted_exception, backtrace].join("\n\n")
+    [
+      node_info,
+      run_status.formatted_exception,
+      Array(backtrace).join("\n")
+    ].join("\n\n")
   end
 
   def create_gist
