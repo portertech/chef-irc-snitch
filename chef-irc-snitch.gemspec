@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "chef-irc-snitch"
-  s.version     = "0.1.0"
+  s.version     = "0.2.0.beta"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Sean Porter"]
   s.email       = ["portertech@gmail.com"]
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "chef-irc-snitch"
 
-  s.add_dependency('carrier-pigeon')
+  s.add_dependency("carrier-pigeon")
 
   s.files         = `git ls-files`.split("\n")
   s.require_paths = ["lib"]

@@ -2,69 +2,84 @@ require 'rubygems'
 require 'chef/handler'
 require 'uri'
 require 'json'
-require 'net/http'
+require 'net/https'
 require 'carrier-pigeon'
 
 class IRCSnitch < Chef::Handler
 
-  def initialize(irc_uri, github_user, github_password, ssl = false)
+  def initialize(irc_uri, ssl=false)
     @irc_uri = irc_uri
-    @github_user = github_user
-    @github_password = github_password
     @ssl = ssl
     @timestamp = Time.now.getutc
+    @gist_url = nil
   end
 
   def formatted_run_list
-    node.run_list.map {|r| r.type == :role ? r.name : r.to_s }.join(', ')
+    node.run_list.map { |r| r.type == :role ? r.name : r.to_s }.join(', ')
   end
 
   def formatted_gist
-    ([ "Node: #{node.name} (#{node.ipaddress})",
-       "Run list: #{node.run_list}",
-       "All roles: #{node.roles.join(', ')}",
-       "",
-       "#{run_status.formatted_exception}",
-       ""
-     ] + Array(backtrace)).join("\n")
+    info = [
+      "Node: #{node.name} (#{node.ipaddress})",
+      "Run list: #{node.run_list}",
+      "All roles: #{node.roles.join(', ')}"
+    ].join("\n")
+    backtrace = Array(backtrace).join("\n")
+    [info, run_status.formatted_exception, backtrace].join("\n")
   end
 
-  def report
-
-    if STDOUT.tty?
-      Chef::Log.error("Chef run failed @ #{@timestamp}")
-      Chef::Log.error("#{run_status.formatted_exception}")
-    else
-      Chef::Log.error("Chef run failed @ #{@timestamp}, snitchin' to chefs via IRC")
-
-      gist_id = nil
-      begin
-        timeout(10) do
-          response = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
-            "files[#{node.name}-#{@timestamp.to_i}]" => formatted_gist,
-            "login" => @github_user,
-            "password" => @github_password,
-            "description" => "Chef run failed on #{node.name} @ #{@timestamp}",
-            "public" => false
-          })
-          gist_id = JSON.parse(response.body)["gists"].first["repo"]
-          Chef::Log.info("Created a GitHub Gist @ https://gist.github.com/#{gist_id}")
-        end
-      rescue Timeout::Error
-        Chef::Log.error("Timed out while attempting to create a GitHub Gist")
+  def create_gist
+    begin
+      timeout(10) do
+        uri = URI.parse("https://api.github.com/gists")
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        request = Net::HTTP::Post.new(uri.request_uri)
+        request.body = {
+          "description" => "Chef run failed on #{node.name} @ #{@timestamp}",
+          "public" => false,
+          "files" => {
+            "chef_exception.txt" => {
+              "content" => formatted_gist
+            }
+          }
+        }.to_json
+        response = http.request(request)
+        @gist_url = JSON.parse(response.body)["html_url"]
       end
-
-      message = "Chef failed on #{node.name} (#{formatted_run_list}): https://gist.github.com/#{gist_id}"
-
-      begin
-        timeout(10) do
-          CarrierPigeon.send(:uri => @irc_uri, :message => message, :ssl => @ssl)
-          Chef::Log.info("Informed chefs via IRC '#{message}'")
-        end
-      rescue Timeout::Error
-        Chef::Log.error("Timed out while attempting to message Chefs via IRC")
-      end
+      Chef::Log.info("Created a GitHub Gist @ #{@gist_url}")
+    rescue Timeout::Error
+      Chef::Log.error("Timed out while attempting to create a GitHub Gist")
+    rescue => error
+      Chef::Log.error("Unexpected error while attempting to create a GitHub Gist: #{error}")
     end
   end
 
+  def message_irc
+    message = "Chef failed on #{node.name} (#{formatted_run_list}): #{@gist_url}"
+    begin
+      timeout(10) do
+        CarrierPigeon.send(:uri => @irc_uri, :message => message, :ssl => @ssl)
+      end
+      Chef::Log.info("Informed chefs via IRC: #{message}")
+    rescue Timeout::Error
+      Chef::Log.error("Timed out while attempting to message chefs via IRC")
+    rescue => error
+      Chef::Log.error("Unexpected error while attempting to message chefs via IRC: #{error}")
+    end
+  end
+
+  def report
+    @timestamp = Time.now.getutc
+    if STDOUT.tty?
+      Chef::Log.error("Chef run failed @ #{@timestamp}")
+      Chef::Log.error(run_status.formatted_exception)
+    else
+      Chef::Log.error("Chef run failed @ #{@timestamp}, snitchin' to chefs via IRC")
+      create_gist
+      unless @gist_url.nil?
+        message_irc
+      end
+    end
+  end
 end

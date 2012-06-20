@@ -9,14 +9,12 @@
 Append the following to your Chef client configs, usually at =/etc/chef/client.rb=
 
 : # Notify admins via IRC when a Chef run fails
-: require 'chef-irc-snitch'
+: require "chef-irc-snitch"
 : 
 : irc_uri = "irc://nick:password@irc.domain.com:6667/#admins"
-: github_user = "foobar"
-: github_password = "secret"
 : enable_ssl = true
 : 
-: irc_handler = IRCSnitch.new(irc_uri, github_user, github_password, enable_ssl)
+: irc_handler = IRCSnitch.new(irc_uri, enable_ssl)
 : exception_handlers << irc_handler
 
 * License
