@@ -73,11 +73,8 @@ class IRCSnitch < Chef::Handler
   end
 
   def report
-    @timestamp = Time.now.getutc
-    if STDOUT.tty?
-      Chef::Log.error("Chef run failed @ #{@timestamp}")
-      Chef::Log.error(run_status.formatted_exception)
-    else
+    unless STDOUT.tty?
+      @timestamp = Time.now.getutc
       Chef::Log.error("Chef run failed @ #{@timestamp}, snitchin' to chefs via IRC")
       create_gist
       unless @gist_url.nil?
