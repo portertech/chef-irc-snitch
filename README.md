@@ -1,10 +1,12 @@
 # Chef IRC Snitch
 
 Chef IRC Snitch is an OpsCode Chef exception handler for notifying
-people when a Chef run fails via IRC; providing a link to a GitHub
-Gist containing node information, an exception message, and a
-backtrace.
-
+people when a Chef run fails via IRC; providing a link to a private
+GitHub Gist containing node information, an exception message, and a
+backtrace. The IRC message also includes the node name and its run
+list, making it possible to sift/search through logs for a specific
+failure. Using GitHub Gists to store failure information provides a
+convenient way to share with others.
 
 ## Installation
 
