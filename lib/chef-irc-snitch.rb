@@ -6,11 +6,12 @@ require "net/https"
 require "carrier-pigeon"
 
 class IRCSnitch < Chef::Handler
-  def initialize(irc_uri, ssl=false)
+  def initialize(irc_uri, ssl=false, github_gist_api_url="https://api.github.com/gists")
     @irc_uri = irc_uri
     @ssl = ssl
     @timestamp = Time.now.getutc
     @gist_url = nil
+    @github_gist_api_url = github_gist_api_url
   end
 
   def formatted_run_list
@@ -34,9 +35,9 @@ class IRCSnitch < Chef::Handler
   def create_gist
     begin
       timeout(10) do
-        uri = URI.parse("https://api.github.com/gists")
+        uri = URI.parse(@github_gist_api_url)
         http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
+        http.use_ssl = uri.scheme == 'https'
         request = Net::HTTP::Post.new(uri.request_uri)
         request.body = {
           "description" => "Chef run failed on #{node.name} @ #{@timestamp}",
