@@ -21,8 +21,10 @@ Append the following to your Chef client configs, usually at `/etc/chef/client.r
 
     irc_uri = "irc://nick:password@irc.domain.com:6667/#admins"
     enable_ssl = true
+    join_irc_channel = true
+    stdout_report = true
 
-    irc_handler = IRCSnitch.new(irc_uri, enable_ssl)
+    irc_handler = IRCSnitch.new(irc_uri, enable_ssl, join_irc_channel, stdout_report)
 
     exception_handlers << irc_handler
 

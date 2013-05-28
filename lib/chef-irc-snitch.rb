@@ -6,9 +6,11 @@ require "net/https"
 require "carrier-pigeon"
 
 class IRCSnitch < Chef::Handler
-  def initialize(irc_uri, ssl=false)
+  def initialize(irc_uri, ssl=false, join=false, stdout_report=false)
     @irc_uri = irc_uri
     @ssl = ssl
+    @join = join
+    @stdout_report = stdout_report
     @timestamp = Time.now.getutc
     @gist_url = nil
   end
@@ -62,7 +64,7 @@ class IRCSnitch < Chef::Handler
     message = "Chef failed on #{node.name} (#{formatted_run_list}): #{@gist_url}"
     begin
       timeout(10) do
-        CarrierPigeon.send(:uri => @irc_uri, :message => message, :ssl => @ssl)
+        CarrierPigeon.send(:uri => @irc_uri, :message => message, :ssl => @ssl, :join => @join)
       end
       Chef::Log.info("Informed chefs via IRC: #{message}")
     rescue Timeout::Error
@@ -73,7 +75,7 @@ class IRCSnitch < Chef::Handler
   end
 
   def report
-    unless STDOUT.tty?
+    if @stdout_report or !STDOUT.tty?
       @timestamp = Time.now.getutc
       Chef::Log.error("Chef run failed @ #{@timestamp}, snitchin' to chefs via IRC")
       create_gist
