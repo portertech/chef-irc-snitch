@@ -62,7 +62,7 @@ class IRCSnitch < Chef::Handler
     message = "Chef failed on #{node.name} (#{formatted_run_list}): #{@gist_url}"
     begin
       timeout(10) do
-        CarrierPigeon.send(:uri => @irc_uri, :message => message, :ssl => @ssl)
+        CarrierPigeon.send(:uri => @irc_uri, :message => message, :ssl => @ssl, :join => true)
       end
       Chef::Log.info("Informed chefs via IRC: #{message}")
     rescue Timeout::Error
