@@ -14,7 +14,7 @@ convenient way to share with others.
 
 ## Usage
 
-Append the following to your Chef client configs, usually at `/etc/chef/client.rb`
+Append the following to your Chef client configs, usually at `/etc/chef/client.rb`.
 Note that the user must already be joined to the channel for this to work.
 
     # Notify admins via IRC when a Chef run fails
@@ -26,6 +26,12 @@ Note that the user must already be joined to the channel for this to work.
     irc_handler = IRCSnitch.new(irc_uri, enable_ssl)
 
     exception_handlers << irc_handler
+
+If necessary it's possible to have the client join the channel on every chef-client
+invocation.  While this isn't efficient it may be necessary in some scenarios.
+
+    join_channel = true
+    irc_handler = IRCSnitch.new(irc_uri, enable_ssl, join_channel)
 
 Alternatively, you can use the LWRP (available @
 http://community.opscode.com/cookbooks/chef_handler)
