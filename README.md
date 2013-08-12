@@ -15,6 +15,7 @@ convenient way to share with others.
 ## Usage
 
 Append the following to your Chef client configs, usually at `/etc/chef/client.rb`
+Note that the user must already be joined to the channel for this to work.
 
     # Notify admins via IRC when a Chef run fails
     require "chef-irc-snitch"
